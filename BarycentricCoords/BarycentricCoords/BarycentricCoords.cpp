@@ -237,27 +237,6 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                 ::DeleteObject(hPen);
             }
 
-            // check if mouse is above form client area
-            if (IsMouseOverWindow(hWnd) && g_IsMouseAboveClientRect)
-            {
-                HPEN hOldPen = (HPEN)SelectObject(hBufferDC, hDashPen);
-
-                // draw the lines between the current point and each vertex
-                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
-                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[0].m_X, (int)triangle.m_Vertex[0].m_Y);
-                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
-                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[1].m_X, (int)triangle.m_Vertex[1].m_Y);
-                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
-                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[2].m_X, (int)triangle.m_Vertex[2].m_Y);
-
-                ::SelectObject(hBufferDC, hOldPen);
-            }
-
-            // configure text rendering
-            ::SetBkMode(hBufferDC, TRANSPARENT);
-            ::SetBkColor(hBufferDC, 0x000000);
-            ::SetTextColor(hBufferDC, 0xffffff);
-
             RECT colorRect;
 
             // colored rectangle coordinates
@@ -281,6 +260,27 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             ::FillRect(hBufferDC, &colorRect, hColorBrush);
 
             ::SelectObject(hBufferDC, hOldBrush);
+
+            // check if mouse is above form client area
+            if (IsMouseOverWindow(hWnd) && g_IsMouseAboveClientRect)
+            {
+                HPEN hOldPen = (HPEN)SelectObject(hBufferDC, hDashPen);
+
+                // draw the lines between the current point and each vertex
+                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
+                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[0].m_X, (int)triangle.m_Vertex[0].m_Y);
+                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
+                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[1].m_X, (int)triangle.m_Vertex[1].m_Y);
+                ::MoveToEx(hBufferDC, (int)g_MousePos.m_X,           (int)g_MousePos.m_Y, nullptr);
+                ::LineTo  (hBufferDC, (int)triangle.m_Vertex[2].m_X, (int)triangle.m_Vertex[2].m_Y);
+
+                ::SelectObject(hBufferDC, hOldPen);
+            }
+
+            // configure text rendering
+            ::SetBkMode(hBufferDC, TRANSPARENT);
+            ::SetBkColor(hBufferDC, 0x000000);
+            ::SetTextColor(hBufferDC, 0xffffff);
 
             RECT textRect;
 
