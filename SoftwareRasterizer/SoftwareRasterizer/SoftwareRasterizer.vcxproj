@@ -158,7 +158,6 @@
     <ClInclude Include="Classes\Matrix4x4.h" />
     <ClInclude Include="Classes\OpenGL.h" />
     <ClInclude Include="Classes\Plane.h" />
-    <ClInclude Include="Classes\Point3D.h" />
     <ClInclude Include="Classes\Polygon.h" />
     <ClInclude Include="Classes\Rect.h" />
     <ClInclude Include="Classes\SoftwareRenderer.h" />
@@ -173,7 +172,6 @@
     <ClCompile Include="Classes\Matrix4x4.cpp" />
     <ClCompile Include="Classes\OpenGL.cpp" />
     <ClCompile Include="Classes\Plane.cpp" />
-    <ClCompile Include="Classes\Point3D.cpp" />
     <ClCompile Include="Classes\Polygon.cpp" />
     <ClCompile Include="Classes\Rect.cpp" />
     <ClCompile Include="Classes\SoftwareRenderer.cpp" />
