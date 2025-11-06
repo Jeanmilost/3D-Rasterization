@@ -322,7 +322,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             model.Rotate(angle, Math::Vector3F(0.0f, 1.0f, 0.0f));
 
             // calculate next rotation
-            angle = std::fmodf(angle + 0.05f, (float)M_PI * 2.0f);
+            angle = std::fmodf(angle + (0.001f * (float)elapsedTime), (float)M_PI * 2.0f);
 
             if (g_UseOpenGL)
             {
