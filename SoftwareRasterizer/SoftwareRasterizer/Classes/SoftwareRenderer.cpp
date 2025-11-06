@@ -236,7 +236,7 @@ Math::Vector3F Renderer::TransformVertex(const Math::Vector3F&   vertex,
     // perspective divide, convert from clip space to NDC (Normalized Device Coordinates)
     ndc.m_X = transformed.m_X / transformed.m_Z;
     ndc.m_Y = transformed.m_Y / transformed.m_Z;
-    ndc.m_Z = transformed.m_Z / transformed.m_Z;
+    ndc.m_Z = transformed.m_Z;
 
     // convert from NDC [-1, 1] to screen space [0, width/height]
     Math::Vector3F screen;
@@ -257,66 +257,7 @@ bool Renderer::DrawPolygon(const Geometry::Polygon&           polygon,
                                  TransformVertex(polygon.m_Vertex[1], matrix),
                                  TransformVertex(polygon.m_Vertex[2], matrix));
 
-    /*
-    // check if the polygon is culled and determine the culling mode to use (0 = CW, 1 = CCW, 2 = both)
-    switch (m_CullingType)
-    {
-        case IECullingType::None:
-            // both faces are accepted
-            break;
-
-        case IECullingType::Front:
-        case IECullingType::Back:
-        {
-            // calculate the rasterized polygon plane
-            const Geometry::PlaneF polygonPlane = rasterPoly.GetPlane();
-                  Math::Vector3F   polygonNormal;
-
-            // calculate the rasterized polygon surface normal
-            polygonNormal.m_X = polygonPlane.m_A;
-            polygonNormal.m_Y = polygonPlane.m_B;
-            polygonNormal.m_Z = polygonPlane.m_C;
-
-            Math::Vector3F cullingNormal;
-
-            // get the culling normal
-            cullingNormal.m_X =  0.0f;
-            cullingNormal.m_Y =  0.0f;
-            cullingNormal.m_Z = -1.0f;
-
-            // calculate the dot product between the culling and the polygon normal
-            const float cullingDot = polygonNormal.Dot(cullingNormal);
-
-            switch (m_CullingFace)
-            {
-                case IECullingFace::CW:
-                    // is polygon rejected?
-                    if (cullingDot <= 0.0f)
-                        return true;
-
-                    break;
-
-                case IECullingFace::CCW:
-                    // is polygon rejected?
-                    if (cullingDot >= 0.0f)
-                        return true;
-
-                    break;
-
-                // error
-                default:
-                    return true;
-            }
-
-            break;
-        }
-
-        case IECullingType::Both:
-        default:
-            // both faces are rejected
-            return true;
-    }
-    */
+    // check if the polygon is culled
     switch (m_CullingType)
     {
         case IECullingType::None:
@@ -362,6 +303,17 @@ bool Renderer::DrawPolygon(const Geometry::Polygon&           polygon,
     rasterPoly.m_Vertex[0].m_Z = 1.0f / rasterPoly.m_Vertex[0].m_Z;
     rasterPoly.m_Vertex[1].m_Z = 1.0f / rasterPoly.m_Vertex[1].m_Z;
     rasterPoly.m_Vertex[2].m_Z = 1.0f / rasterPoly.m_Vertex[2].m_Z;
+
+    std::vector<Math::Vector2F> texCoord;
+    texCoord.resize(3);
+
+    // pre-calculate perspective-correct texture coordinates
+    texCoord[0].m_X = st[0].m_X * rasterPoly.m_Vertex[0].m_Z;
+    texCoord[0].m_Y = st[0].m_Y * rasterPoly.m_Vertex[0].m_Z;
+    texCoord[1].m_X = st[1].m_X * rasterPoly.m_Vertex[1].m_Z;
+    texCoord[1].m_Y = st[1].m_Y * rasterPoly.m_Vertex[1].m_Z;
+    texCoord[2].m_X = st[2].m_X * rasterPoly.m_Vertex[2].m_Z;
+    texCoord[2].m_Y = st[2].m_Y * rasterPoly.m_Vertex[2].m_Z;
 
     Geometry::Triangle triangle;
 
@@ -417,17 +369,26 @@ bool Renderer::DrawPolygon(const Geometry::Polygon&           polygon,
 
                     if (m_HasTexture)
                     {
-                        // calculate the texture coordinate
-                        float u = ((st[0].m_X * w0) + (st[1].m_X * w1) + (st[2].m_X * w2)) * z;
-                        float v = ((st[0].m_Y * w0) + (st[1].m_Y * w1) + (st[2].m_Y * w2)) * z;
+                        // calculate perspective-correct texture coordinates
+                        float u = ((texCoord[0].m_X * w0) + (texCoord[1].m_X * w1) + (texCoord[2].m_X * w2)) * z;
+                        float v = ((texCoord[0].m_Y * w0) + (texCoord[1].m_Y * w1) + (texCoord[2].m_Y * w2)) * z;
 
-                        // clamp the values between 0 and 1
-                        u = std::max(std::min(u, 1.0f), 0.0f);
-                        v = std::max(std::min(v, 1.0f), 0.0f);
+                        // wrap coordinates (handle values outside 0-1)
+                        u = u - std::floorf(u);
+                        v = v - std::floorf(v);
 
-                        // calculate the x and y coordinate to pick in the texture, and the line length in pixels
-                        const std::size_t tx   = (std::size_t)std::floorf(u * m_TexWidth);
-                        const std::size_t ty   = (std::size_t)std::floorf(v * m_TexHeight);
+                        // clamp to prevent out-of-bounds access
+                        std::size_t tx = (std::size_t)std::floorf(u * (float)m_TexWidth);
+                        std::size_t ty = (std::size_t)std::floorf(v * (float)m_TexHeight);
+
+                        // clamp to valid range
+                        if (tx >= m_TexWidth)
+                            tx = m_TexWidth - 1;
+
+                        if (ty >= m_TexHeight)
+                            ty = m_TexHeight - 1;
+
+                        // calculate the texture line width
                         const std::size_t line = m_TexWidth * m_TexBPP;
 
                         // calculate the pixel index to get

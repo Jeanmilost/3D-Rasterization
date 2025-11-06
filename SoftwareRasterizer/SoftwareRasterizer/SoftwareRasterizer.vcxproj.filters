@@ -33,9 +33,6 @@
     <ClInclude Include="Classes\Rect.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Classes\TriangleRenderer.h">
-      <Filter>Header Files\Classes</Filter>
-    </ClInclude>
     <ClInclude Include="Classes\Matrix4x4.h">
       <Filter>Header Files\Classes</Filter>
     </ClInclude>
@@ -72,9 +69,6 @@
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="Classes\Rect.cpp">
-      <Filter>Source Files\Classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Classes\TriangleRenderer.cpp">
       <Filter>Source Files\Classes</Filter>
     </ClCompile>
     <ClCompile Include="SoftwareRasterizer.cpp">
