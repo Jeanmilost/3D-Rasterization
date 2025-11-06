@@ -316,6 +316,14 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             double elapsedTime = (double)::GetTickCount64() - lastTime;
                    lastTime    = (double)::GetTickCount64();
 
+            // calculate model position and rotation
+            Math::Matrix4x4F model =  Math::Matrix4x4F::Identity();
+            model.m_Table[3][2]    = -250.0f;
+            model.Rotate(angle, Math::Vector3F(0.0f, 1.0f, 0.0f));
+
+            // calculate next rotation
+            angle = std::fmodf(angle + 0.05f, (float)M_PI * 2.0f);
+
             if (g_UseOpenGL)
             {
                 context.MakeCurrent();
@@ -325,14 +333,6 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
 
                 // reset model view matrix
                 glMatrixMode(GL_MODELVIEW);
-
-                // calculate model position and rotation
-                Math::Matrix4x4F model =  Math::Matrix4x4F::Identity();
-                model.m_Table[3][2]    = -250.0f;
-                model.Rotate(angle, Math::Vector3F(0.0f, 1.0f, 0.0f));
-
-                // calculate next rotation
-                angle = std::fmodf(angle + 0.05f, (float)M_PI * 2.0f);
 
                 // set model matrix
                 glLoadMatrixf(model.GetPtr());
@@ -350,14 +350,6 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
             {
                 // clear buffers
                 softwareRenderer.Clear(0xFF333333);
-
-                // calculate model position and rotation
-                Math::Matrix4x4F model =  Math::Matrix4x4F::Identity();
-                model.m_Table[3][2]    = -250.0f;
-                model.Rotate(angle, Math::Vector3F(0.0f, 1.0f, 0.0f));
-
-                // calculate next rotation
-                angle = std::fmodf(angle + 0.05f, (float)M_PI * 2.0f);
 
                 // set model matrix
                 softwareRenderer.SetModel(model);
