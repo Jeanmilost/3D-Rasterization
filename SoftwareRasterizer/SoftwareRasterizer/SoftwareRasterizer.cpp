@@ -286,7 +286,7 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
     {
         // use the pixel data
         openGLRenderer.LoadTexture(pixels, width, height);
-        softwareRenderer.LoadTexture(pixels, width, height);
+        softwareRenderer.LoadTexture(pixels, width, height, 4);
 
         // clean up when done
         delete[] pixels;
@@ -352,8 +352,8 @@ int APIENTRY wWinMain(_In_     HINSTANCE hInstance,
                 softwareRenderer.Clear(0xFF333333);
 
                 // calculate model position and rotation
-                Math::Matrix4x4F model = Math::Matrix4x4F::Identity();
-                model.m_Table[3][2] = -250.0f;
+                Math::Matrix4x4F model =  Math::Matrix4x4F::Identity();
+                model.m_Table[3][2]    = -250.0f;
                 model.Rotate(angle, Math::Vector3F(0.0f, 1.0f, 0.0f));
 
                 // calculate next rotation

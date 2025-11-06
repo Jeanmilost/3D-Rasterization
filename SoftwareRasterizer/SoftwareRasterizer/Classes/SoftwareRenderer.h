@@ -30,6 +30,7 @@
 
  // classes
 #include "Matrix4x4.h"
+#include "Polygon.h"
 #include "WaveFront.h"
 
 // windows
@@ -46,6 +47,26 @@ namespace Rasterizer
     class Renderer
     {
         public:
+            /**
+            * Culling type
+            */
+            enum class IECullingType
+            {
+                None,
+                Front,
+                Back,
+                Both
+            };
+
+            /**
+            * Culling face
+            */
+            enum class IECullingFace
+            {
+                CW,
+                CCW
+            };
+
             Renderer();
             virtual ~Renderer();
 
@@ -63,6 +84,12 @@ namespace Rasterizer
             void SetProjection();
 
             /**
+            * Sets the view matrix
+            *@param view - the view matrix to set
+            */
+            void SetView(const Math::Matrix4x4F& view);
+
+            /**
             * Sets the model matrix
             *@param model - the model matrix to set
             */
@@ -73,8 +100,9 @@ namespace Rasterizer
             *@param data - raw RGBA bitmap data (unsigned char*)
             *@param width - texture width
             *@param height - texture height
+            *@param bpp - byte per pixels
             */
-            void LoadTexture(unsigned char* data, int width, int height);
+            void LoadTexture(unsigned char* data, std::size_t width, std::size_t height, std::size_t bpp);
 
             /**
             * Makes this context current for rendering
@@ -100,16 +128,48 @@ namespace Rasterizer
 
         private:
             Math::Matrix4x4F m_Projection;
+            Math::Matrix4x4F m_View;
             Math::Matrix4x4F m_Model;
+            IECullingType    m_CullingType = IECullingType::Back;
+            IECullingFace    m_CullingFace = IECullingFace::CW;
+            RECT             m_ScreenRect  = { 0 };
             HWND             m_hWnd        = nullptr;
             HDC              m_hDC         = nullptr;
             HDC              m_hMemDC      = nullptr;
             HBITMAP          m_hCanvas     = nullptr;
+            unsigned char*   m_pTexture    = nullptr;
             DWORD*           m_pPixels     = nullptr;
             float*           m_pZBuffer    = nullptr;
-            int              m_Width       = 0;
-            int              m_Height      = 0;
+            float            m_Near        = 0.1f;
+            float            m_Far         = 1000.0f;
+            std::size_t      m_TexWidth    = 0;
+            std::size_t      m_TexHeight   = 0;
+            std::size_t      m_TexBPP      = 0;
+            std::size_t      m_Width       = 0;
+            std::size_t      m_Height      = 0;
             bool             m_HasTexture  = false;
             bool             m_Initialized = false;
+
+            /**
+            * Transform a vertex into screen coordinates
+            *@param vertex - input vertex
+            *@param matrix - matrix
+            *@return output vertex
+            */
+            Math::Vector3F TransformVertex(const Math::Vector3F&   vertex,
+                                           const Math::Matrix4x4F& matrix) const;
+
+            /**
+            * Draws a polygon
+            *@param polygon - polygon
+            *@param normal - polygon normal (array of 3 items)
+            *@param st - polygon texture coordinates (array of 3 items)
+            *@param matrix - matrix
+            *@return true on success, otherwise false
+            */
+            bool DrawPolygon(const Geometry::Polygon&           polygon,
+                             const std::vector<Math::Vector3F>& normal,
+                             const std::vector<Math::Vector2F>& st,
+                             const Math::Matrix4x4F&            matrix) const;
     };
 }
