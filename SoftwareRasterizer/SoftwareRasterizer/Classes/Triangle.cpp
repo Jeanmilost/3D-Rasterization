@@ -54,7 +54,7 @@ Rect Triangle::GetBoundingRect() const
 //------------------------------------------------------------------------------
 bool Triangle::BarycentricInside(const Math::Vector2F& point, IWeights& weights) const
 {
-    // barycentric coordinates are a way to express any point inside(or outside) a triangle
+    // barycentric coordinates are a way to express any point inside (or outside) a triangle
     // as a weighted combination of the triangle three vertices. For a triangle with vertices
     // A, B, and C, any point P can be expressed as:
     // P = W0 · A + W1 · B + W2 · C
